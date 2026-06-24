@@ -10,3 +10,24 @@ __pycache__/
 .mypy_cache/
 .coverage
 htmlcov/
+
+# OSMnx / geocoding cache
+cache/
+
+# Python package metadata
+*.egg-info/
+src/*.egg-info/
+
+# Generated geospatial data
+data/external/**
+!data/external/.gitkeep
+data/raw/**
+!data/raw/.gitkeep
+data/interim/**
+!data/interim/.gitkeep
+data/processed/**
+!data/processed/.gitkeep
+data/features/**
+!data/features/.gitkeep
+data/predictions/**
+!data/predictions/.gitkeep

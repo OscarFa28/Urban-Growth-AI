@@ -5,6 +5,7 @@ cities:
   - id: mx_cdmx
     name: "Ciudad de México"
     state: "Ciudad de México"
+    osm_query: "Ciudad de México, Mexico"
     size_category: "megacity"
     behavior_category:
       - "metropolitan"
@@ -15,6 +16,7 @@ cities:
   - id: mx_guadalajara
     name: "Guadalajara"
     state: "Jalisco"
+    osm_query: "Guadalajara, Jalisco, Mexico"
     size_category: "large_city"
     behavior_category:
       - "metropolitan"
@@ -26,6 +28,7 @@ cities:
   - id: mx_monterrey
     name: "Monterrey"
     state: "Nuevo León"
+    osm_query: "Monterrey, Nuevo León, Mexico"
     size_category: "large_city"
     behavior_category:
       - "industrial"
@@ -36,6 +39,7 @@ cities:
   - id: mx_tijuana
     name: "Tijuana"
     state: "Baja California"
+    osm_query: "Tijuana Municipality, Baja California, Mexico"
     size_category: "large_city"
     behavior_category:
       - "border"
@@ -46,6 +50,7 @@ cities:
   - id: mx_queretaro
     name: "Querétaro"
     state: "Querétaro"
+    osm_query: "Querétaro, Querétaro, Mexico"
     size_category: "medium_city"
     behavior_category:
       - "industrial"
@@ -57,6 +62,7 @@ cities:
   - id: mx_leon
     name: "León"
     state: "Guanajuato"
+    osm_query: "León, Guanajuato, Mexico"
     size_category: "medium_city"
     behavior_category:
       - "industrial"
@@ -67,6 +73,10 @@ cities:
   - id: mx_aguascalientes
     name: "Aguascalientes"
     state: "Aguascalientes"
+    osm_queries:
+    - "Municipio de Aguascalientes, Aguascalientes, Mexico"
+    - "Aguascalientes, Municipio de Aguascalientes, Aguascalientes, Mexico"
+    - "Aguascalientes, Aguascalientes, Mexico"
     size_category: "city"
     behavior_category:
       - "industrial"
@@ -77,6 +87,7 @@ cities:
   - id: mx_san_luis_potosi
     name: "San Luis Potosí"
     state: "San Luis Potosí"
+    osm_query: "San Luis Potosí Municipality, San Luis Potosí, Mexico"
     size_category: "city"
     behavior_category:
       - "industrial"
@@ -87,6 +98,7 @@ cities:
   - id: mx_puerto_vallarta
     name: "Puerto Vallarta"
     state: "Jalisco"
+    osm_query: "Puerto Vallarta, Jalisco, Mexico"
     size_category: "small_medium_city"
     behavior_category:
       - "touristic"
@@ -97,6 +109,10 @@ cities:
   - id: mx_zacatecas
     name: "Zacatecas"
     state: "Zacatecas"
+    osm_queries:
+    - "Municipio de Zacatecas, Zacatecas, Mexico"
+    - "Zacatecas, Municipio de Zacatecas, Zacatecas, Mexico"
+    - "Zacatecas, Zacatecas, Mexico"
     size_category: "small_city"
     behavior_category:
       - "heritage"
@@ -107,6 +123,7 @@ cities:
   - id: mx_arandas
     name: "Arandas"
     state: "Jalisco"
+    osm_query: "Arandas, Jalisco, Mexico"
     size_category: "urban_town"
     behavior_category:
       - "agroindustrial"
@@ -117,6 +134,7 @@ cities:
   - id: mx_san_juan_de_los_lagos
     name: "San Juan de los Lagos"
     state: "Jalisco"
+    osm_query: "San Juan de los Lagos, Jalisco, Mexico"
     size_category: "urban_town"
     behavior_category:
       - "religious_tourism"
