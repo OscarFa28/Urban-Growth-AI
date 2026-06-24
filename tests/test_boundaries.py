@@ -4,6 +4,7 @@ from shapely.geometry import Polygon
 from urban_growth.data.boundaries import (
     WGS84_CRS,
     boundary_output_path,
+    calculate_area_km2,
     get_city_osm_queries,
     get_city_osm_query,
     save_city_boundary,
@@ -94,3 +95,24 @@ def test_get_city_osm_queries_from_list() -> None:
         "Municipio de Aguascalientes, Aguascalientes, Mexico",
         "Aguascalientes, Aguascalientes, Mexico",
     ]
+
+
+def test_calculate_area_km2() -> None:
+    polygon = Polygon(
+        [
+            (-102.30, 21.80),
+            (-102.28, 21.80),
+            (-102.28, 21.82),
+            (-102.30, 21.82),
+            (-102.30, 21.80),
+        ]
+    )
+
+    gdf = gpd.GeoDataFrame(
+        [{"geometry": polygon}],
+        crs=WGS84_CRS,
+    )
+
+    area_km2 = calculate_area_km2(gdf)
+
+    assert area_km2 > 0

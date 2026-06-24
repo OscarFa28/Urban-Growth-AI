@@ -6,6 +6,7 @@ import osmnx as ox
 from shapely.geometry import MultiPolygon, Polygon
 
 WGS84_CRS = "EPSG:4326"
+DEFAULT_MIN_BOUNDARY_AREA_KM2 = 1.0
 
 
 def get_city_osm_queries(city: dict[str, Any], country: str) -> list[str]:
@@ -35,9 +36,25 @@ def _filter_polygonal_geometries(boundary: gpd.GeoDataFrame) -> gpd.GeoDataFrame
     return boundary.loc[polygon_mask].copy()
 
 
+def calculate_area_km2(boundary: gpd.GeoDataFrame) -> float:
+    """Calculate the area of a boundary in square kilometers."""
+    metric_crs = boundary.estimate_utm_crs()
+
+    if metric_crs is None:
+        raise ValueError("Could not estimate a metric CRS to calculate area.")
+
+    return float(boundary.to_crs(metric_crs).geometry.area.sum() / 1_000_000)
+
+
+def _get_min_boundary_area_km2(city: dict[str, Any]) -> float:
+    """Get the minimum acceptable boundary area for a city."""
+    return float(city.get("min_boundary_area_km2", DEFAULT_MIN_BOUNDARY_AREA_KM2))
+
+
 def fetch_city_boundary(city: dict[str, Any], country: str) -> gpd.GeoDataFrame:
     """Fetch a city boundary from OpenStreetMap using OSMnx."""
     queries = get_city_osm_queries(city, country)
+    min_area_km2 = _get_min_boundary_area_km2(city)
     errors = []
 
     for query in queries:
@@ -58,11 +75,20 @@ def fetch_city_boundary(city: dict[str, Any], country: str) -> gpd.GeoDataFrame:
             errors.append(f"{query}: no polygonal geometry")
             continue
 
+        area_km2 = calculate_area_km2(boundary)
+
+        if area_km2 < min_area_km2:
+            errors.append(
+                f"{query}: area too small ({area_km2:.2f} km² < {min_area_km2:.2f} km²)"
+            )
+            continue
+
         boundary["city_id"] = city["id"]
         boundary["city_name"] = city["name"]
         boundary["state"] = city["state"]
         boundary["country"] = country
         boundary["osm_query"] = query
+        boundary["area_km2"] = area_km2
 
         return boundary[
             [
@@ -71,13 +97,15 @@ def fetch_city_boundary(city: dict[str, Any], country: str) -> gpd.GeoDataFrame:
                 "state",
                 "country",
                 "osm_query",
+                "area_km2",
                 "geometry",
             ]
         ]
 
     joined_errors = " | ".join(errors)
     raise ValueError(
-        f"No polygonal boundary found for city '{city['id']}'. Tried: {joined_errors}"
+        f"No valid polygonal boundary found for city '{city['id']}'. "
+        f"Tried: {joined_errors}"
     )
 
 
