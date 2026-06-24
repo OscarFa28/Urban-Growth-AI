@@ -1,0 +1,34 @@
+name: urban-growth-ai
+channels:
+  - conda-forge
+dependencies:
+  - python=3.12
+  - geopandas
+  - rasterio
+  - shapely
+  - pyproj
+  - fiona
+  - osmnx
+  - folium
+  - pandas
+  - polars
+  - numpy
+  - scikit-learn
+  - xgboost
+  - lightgbm
+  - matplotlib
+  - jupyterlab
+  - ipykernel
+  - pyarrow
+  - duckdb
+  - pyyaml
+  - tqdm
+  - pytest
+  - ruff
+  - black
+  - pre-commit
+  - pip
+  - pip:
+      - earthengine-api
+      - geemap
+      - python-dotenv
