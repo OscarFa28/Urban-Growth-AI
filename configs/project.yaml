@@ -1,0 +1,14 @@
+project:
+  name: "Urban Growth AI"
+  version: "0.1.0"
+
+grid:
+  default_size_m: 500
+  supported_sizes_m:
+    - 200
+    - 500
+    - 1000
+    - 2000
+
+  output_dir: "data/interim/grids"
+  boundary_dir: "data/external/boundaries"
