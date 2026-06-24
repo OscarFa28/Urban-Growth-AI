@@ -1,0 +1,125 @@
+country: Mexico
+country_code: MX
+
+cities:
+  - id: mx_cdmx
+    name: "Ciudad de México"
+    state: "Ciudad de México"
+    size_category: "megacity"
+    behavior_category:
+      - "metropolitan"
+      - "administrative"
+    density_category: "very_high"
+    priority: 1
+
+  - id: mx_guadalajara
+    name: "Guadalajara"
+    state: "Jalisco"
+    size_category: "large_city"
+    behavior_category:
+      - "metropolitan"
+      - "technological"
+      - "commercial"
+    density_category: "high"
+    priority: 1
+
+  - id: mx_monterrey
+    name: "Monterrey"
+    state: "Nuevo León"
+    size_category: "large_city"
+    behavior_category:
+      - "industrial"
+      - "metropolitan"
+    density_category: "medium_high"
+    priority: 1
+
+  - id: mx_tijuana
+    name: "Tijuana"
+    state: "Baja California"
+    size_category: "large_city"
+    behavior_category:
+      - "border"
+      - "industrial"
+    density_category: "medium_high"
+    priority: 1
+
+  - id: mx_queretaro
+    name: "Querétaro"
+    state: "Querétaro"
+    size_category: "medium_city"
+    behavior_category:
+      - "industrial"
+      - "real_estate"
+      - "logistics"
+    density_category: "medium"
+    priority: 1
+
+  - id: mx_leon
+    name: "León"
+    state: "Guanajuato"
+    size_category: "medium_city"
+    behavior_category:
+      - "industrial"
+      - "commercial"
+    density_category: "medium"
+    priority: 1
+
+  - id: mx_aguascalientes
+    name: "Aguascalientes"
+    state: "Aguascalientes"
+    size_category: "city"
+    behavior_category:
+      - "industrial"
+      - "administrative"
+    density_category: "medium"
+    priority: 1
+
+  - id: mx_san_luis_potosi
+    name: "San Luis Potosí"
+    state: "San Luis Potosí"
+    size_category: "city"
+    behavior_category:
+      - "industrial"
+      - "logistics"
+    density_category: "medium"
+    priority: 1
+
+  - id: mx_puerto_vallarta
+    name: "Puerto Vallarta"
+    state: "Jalisco"
+    size_category: "small_medium_city"
+    behavior_category:
+      - "touristic"
+      - "coastal"
+    density_category: "irregular"
+    priority: 1
+
+  - id: mx_zacatecas
+    name: "Zacatecas"
+    state: "Zacatecas"
+    size_category: "small_city"
+    behavior_category:
+      - "heritage"
+      - "administrative"
+    density_category: "medium_low"
+    priority: 1
+
+  - id: mx_arandas
+    name: "Arandas"
+    state: "Jalisco"
+    size_category: "urban_town"
+    behavior_category:
+      - "agroindustrial"
+      - "commercial"
+    density_category: "low_medium"
+    priority: 2
+
+  - id: mx_san_juan_de_los_lagos
+    name: "San Juan de los Lagos"
+    state: "Jalisco"
+    size_category: "urban_town"
+    behavior_category:
+      - "religious_tourism"
+      - "commercial"
+    density_category: "low_medium"
+    priority: 2
