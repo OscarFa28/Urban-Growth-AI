@@ -1,143 +1,202 @@
 country: Mexico
 country_code: MX
-
 cities:
-  - id: mx_cdmx
-    name: "Ciudad de México"
-    state: "Ciudad de México"
-    osm_query: "Ciudad de México, Mexico"
-    size_category: "megacity"
-    behavior_category:
-      - "metropolitan"
-      - "administrative"
-    density_category: "very_high"
-    priority: 1
-
-  - id: mx_guadalajara
-    name: "Guadalajara"
-    state: "Jalisco"
-    osm_query: "Guadalajara, Jalisco, Mexico"
-    size_category: "large_city"
-    behavior_category:
-      - "metropolitan"
-      - "technological"
-      - "commercial"
-    density_category: "high"
-    priority: 1
-
-  - id: mx_monterrey
-    name: "Monterrey"
-    state: "Nuevo León"
-    osm_query: "Monterrey, Nuevo León, Mexico"
-    size_category: "large_city"
-    behavior_category:
-      - "industrial"
-      - "metropolitan"
-    density_category: "medium_high"
-    priority: 1
-
-  - id: mx_tijuana
-    name: "Tijuana"
-    state: "Baja California"
-    osm_query: "Tijuana Municipality, Baja California, Mexico"
-    size_category: "large_city"
-    behavior_category:
-      - "border"
-      - "industrial"
-    density_category: "medium_high"
-    priority: 1
-
-  - id: mx_queretaro
-    name: "Querétaro"
-    state: "Querétaro"
-    osm_query: "Querétaro, Querétaro, Mexico"
-    size_category: "medium_city"
-    behavior_category:
-      - "industrial"
-      - "real_estate"
-      - "logistics"
-    density_category: "medium"
-    priority: 1
-
-  - id: mx_leon
-    name: "León"
-    state: "Guanajuato"
-    osm_query: "León, Guanajuato, Mexico"
-    size_category: "medium_city"
-    behavior_category:
-      - "industrial"
-      - "commercial"
-    density_category: "medium"
-    priority: 1
-
-  - id: mx_aguascalientes
-    name: "Aguascalientes"
-    state: "Aguascalientes"
-    osm_queries:
-    - "Municipio de Aguascalientes, Aguascalientes, Mexico"
-    - "Aguascalientes, Municipio de Aguascalientes, Aguascalientes, Mexico"
-    - "Aguascalientes, Aguascalientes, Mexico"
-    size_category: "city"
-    behavior_category:
-      - "industrial"
-      - "administrative"
-    density_category: "medium"
-    priority: 1
-
-  - id: mx_san_luis_potosi
-    name: "San Luis Potosí"
-    state: "San Luis Potosí"
-    osm_query: "San Luis Potosí Municipality, San Luis Potosí, Mexico"
-    size_category: "city"
-    behavior_category:
-      - "industrial"
-      - "logistics"
-    density_category: "medium"
-    priority: 1
-
-  - id: mx_puerto_vallarta
-    name: "Puerto Vallarta"
-    state: "Jalisco"
-    osm_query: "Puerto Vallarta, Jalisco, Mexico"
-    size_category: "small_medium_city"
-    behavior_category:
-      - "touristic"
-      - "coastal"
-    density_category: "irregular"
-    priority: 1
-
-  - id: mx_zacatecas
-    name: "Zacatecas"
-    state: "Zacatecas"
-    osm_queries:
-    - "Municipio de Zacatecas, Zacatecas, Mexico"
-    - "Zacatecas, Municipio de Zacatecas, Zacatecas, Mexico"
-    - "Zacatecas, Zacatecas, Mexico"
-    size_category: "small_city"
-    behavior_category:
-      - "heritage"
-      - "administrative"
-    density_category: "medium_low"
-    priority: 1
-
-  - id: mx_arandas
-    name: "Arandas"
-    state: "Jalisco"
-    osm_query: "Arandas, Jalisco, Mexico"
-    size_category: "urban_town"
-    behavior_category:
-      - "agroindustrial"
-      - "commercial"
-    density_category: "low_medium"
-    priority: 2
-
-  - id: mx_san_juan_de_los_lagos
-    name: "San Juan de los Lagos"
-    state: "Jalisco"
-    osm_query: "San Juan de los Lagos, Jalisco, Mexico"
-    size_category: "urban_town"
-    behavior_category:
-      - "religious_tourism"
-      - "commercial"
-    density_category: "low_medium"
-    priority: 2
+- id: mx_cdmx
+  name: Ciudad de México
+  state: Ciudad de México
+  osm_query: Ciudad de México, Mexico
+  size_category: megacity
+  behavior_category:
+  - metropolitan
+  - administrative
+  density_category: very_high
+  priority: 1
+  spatial_unit_type: federal_entity
+  municipality_id: null
+  municipality_name: null
+  metro_area_id: mx_zm_valle_de_mexico
+  metro_area_name: Zona Metropolitana del Valle de México
+- id: mx_guadalajara
+  name: Guadalajara
+  state: Jalisco
+  osm_query: Guadalajara, Jalisco, Mexico
+  size_category: large_city
+  behavior_category:
+  - metropolitan
+  - technological
+  - commercial
+  density_category: high
+  priority: 1
+  spatial_unit_type: municipality
+  municipality_id: mx_guadalajara
+  municipality_name: Guadalajara
+  metro_area_id: mx_zm_guadalajara
+  metro_area_name: Zona Metropolitana de Guadalajara
+- id: mx_monterrey
+  name: Monterrey
+  state: Nuevo León
+  osm_query: Monterrey, Nuevo León, Mexico
+  size_category: large_city
+  behavior_category:
+  - industrial
+  - metropolitan
+  density_category: medium_high
+  priority: 1
+  spatial_unit_type: municipality
+  municipality_id: mx_monterrey
+  municipality_name: Monterrey
+  metro_area_id: mx_zm_monterrey
+  metro_area_name: Zona Metropolitana de Monterrey
+- id: mx_tijuana
+  name: Tijuana
+  state: Baja California
+  osm_queries:
+  - Municipio de Tijuana, Baja California, México
+  - Municipio de Tijuana, Baja California, Mexico
+  - Tijuana Municipality, Baja California, Mexico
+  - Tijuana, Baja California, Mexico
+  min_boundary_area_km2: 100
+  size_category: large_city
+  behavior_category:
+  - border
+  - industrial
+  density_category: medium_high
+  priority: 1
+  spatial_unit_type: municipality
+  municipality_id: mx_tijuana
+  municipality_name: Tijuana
+  metro_area_id: mx_zm_tijuana
+  metro_area_name: Zona Metropolitana de Tijuana
+- id: mx_queretaro
+  name: Querétaro
+  state: Querétaro
+  osm_query: Querétaro, Querétaro, Mexico
+  size_category: medium_city
+  behavior_category:
+  - industrial
+  - real_estate
+  - logistics
+  density_category: medium
+  priority: 1
+  spatial_unit_type: municipality
+  municipality_id: mx_queretaro
+  municipality_name: Querétaro
+  metro_area_id: mx_zm_queretaro
+  metro_area_name: Zona Metropolitana de Querétaro
+- id: mx_leon
+  name: León
+  state: Guanajuato
+  osm_query: León, Guanajuato, Mexico
+  size_category: medium_city
+  behavior_category:
+  - industrial
+  - commercial
+  density_category: medium
+  priority: 1
+  spatial_unit_type: municipality
+  municipality_id: mx_leon
+  municipality_name: León
+  metro_area_id: mx_zm_leon
+  metro_area_name: Zona Metropolitana de León
+- id: mx_aguascalientes
+  name: Aguascalientes
+  state: Aguascalientes
+  osm_queries:
+  - Municipio de Aguascalientes, Aguascalientes, Mexico
+  - Aguascalientes, Municipio de Aguascalientes, Aguascalientes, Mexico
+  - Aguascalientes, Aguascalientes, Mexico
+  size_category: city
+  behavior_category:
+  - industrial
+  - administrative
+  density_category: medium
+  priority: 1
+  spatial_unit_type: municipality
+  municipality_id: mx_aguascalientes
+  municipality_name: Aguascalientes
+  metro_area_id: mx_zm_aguascalientes
+  metro_area_name: Zona Metropolitana de Aguascalientes
+- id: mx_san_luis_potosi
+  name: San Luis Potosí
+  state: San Luis Potosí
+  osm_queries:
+  - Municipio de San Luis Potosí, San Luis Potosí, México
+  - Municipio de San Luis Potosí, San Luis Potosí, Mexico
+  - San Luis Potosí Municipality, San Luis Potosí, Mexico
+  - San Luis Potosí, San Luis Potosí, Mexico
+  - San Luis Potosi, San Luis Potosi, Mexico
+  min_boundary_area_km2: 100
+  size_category: city
+  behavior_category:
+  - industrial
+  - logistics
+  density_category: medium
+  priority: 1
+  spatial_unit_type: municipality
+  municipality_id: mx_san_luis_potosi
+  municipality_name: San Luis Potosí
+  metro_area_id: mx_zm_san_luis_potosi
+  metro_area_name: Zona Metropolitana de San Luis Potosí
+- id: mx_puerto_vallarta
+  name: Puerto Vallarta
+  state: Jalisco
+  osm_query: Puerto Vallarta, Jalisco, Mexico
+  size_category: small_medium_city
+  behavior_category:
+  - touristic
+  - coastal
+  density_category: irregular
+  priority: 1
+  spatial_unit_type: municipality
+  municipality_id: mx_puerto_vallarta
+  municipality_name: Puerto Vallarta
+  metro_area_id: mx_zm_puerto_vallarta
+  metro_area_name: Zona Metropolitana de Puerto Vallarta
+- id: mx_zacatecas
+  name: Zacatecas
+  state: Zacatecas
+  osm_queries:
+  - Municipio de Zacatecas, Zacatecas, Mexico
+  - Zacatecas, Municipio de Zacatecas, Zacatecas, Mexico
+  - Zacatecas, Zacatecas, Mexico
+  size_category: small_city
+  behavior_category:
+  - heritage
+  - administrative
+  density_category: medium_low
+  priority: 1
+  spatial_unit_type: municipality
+  municipality_id: mx_zacatecas
+  municipality_name: Zacatecas
+  metro_area_id: mx_zm_zacatecas
+  metro_area_name: Zona Metropolitana de Zacatecas
+- id: mx_arandas
+  name: Arandas
+  state: Jalisco
+  osm_query: Arandas, Jalisco, Mexico
+  size_category: urban_town
+  behavior_category:
+  - agroindustrial
+  - commercial
+  density_category: low_medium
+  priority: 2
+  spatial_unit_type: municipality
+  municipality_id: mx_arandas
+  municipality_name: Arandas
+  metro_area_id: null
+  metro_area_name: null
+- id: mx_san_juan_de_los_lagos
+  name: San Juan de los Lagos
+  state: Jalisco
+  osm_query: San Juan de los Lagos, Jalisco, Mexico
+  size_category: urban_town
+  behavior_category:
+  - religious_tourism
+  - commercial
+  density_category: low_medium
+  priority: 2
+  spatial_unit_type: municipality
+  municipality_id: mx_san_juan_de_los_lagos
+  municipality_name: San Juan de los Lagos
+  metro_area_id: null
+  metro_area_name: null
