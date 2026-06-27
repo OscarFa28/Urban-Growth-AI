@@ -31,3 +31,4 @@ data/features/**
 !data/features/.gitkeep
 data/predictions/**
 !data/predictions/.gitkeep
+.DS_Store
