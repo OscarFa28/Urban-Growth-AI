@@ -128,6 +128,7 @@ DEMOGRAPHIC_PREFIXES = (
 )
 
 ECONOMIC_PREFIXES = ("economic_",)
+DENUE_SERVICE_PREFIXES = ("denue_service_",)
 
 
 def _available_columns(df: pd.DataFrame, columns: list[str]) -> list[str]:
@@ -254,6 +255,15 @@ def _prepare_economic_features(df: pd.DataFrame) -> pd.DataFrame:
     return _drop_geometry_if_present(df[columns].copy())
 
 
+def _prepare_denue_service_features(df: pd.DataFrame) -> pd.DataFrame:
+    """Prepare static DENUE service accessibility features."""
+    columns = [CELL_KEY]
+    columns += _columns_by_prefix(df, DENUE_SERVICE_PREFIXES)
+    columns = list(dict.fromkeys(_available_columns(df, columns)))
+
+    return _drop_geometry_if_present(df[columns].copy())
+
+
 def _merge_one_to_one(
     left: pd.DataFrame,
     right: pd.DataFrame,
@@ -276,6 +286,7 @@ def build_modeling_dataset(
     label_features: pd.DataFrame,
     demographic_features: pd.DataFrame,
     economic_features: pd.DataFrame,
+    denue_service_features: pd.DataFrame | None = None,
     start_year: int = 2016,
     end_year: int = 2024,
 ) -> gpd.GeoDataFrame:
@@ -296,6 +307,10 @@ def build_modeling_dataset(
     static = _prepare_static_features(spatial_features)
     roads = _prepare_road_features(road_features)
     economic = _prepare_economic_features(economic_features)
+    denue_services = None
+
+    if denue_service_features is not None:
+        denue_services = _prepare_denue_service_features(denue_service_features)
 
     modeling = _merge_one_to_one(
         modeling,
@@ -322,6 +337,14 @@ def build_modeling_dataset(
         source_name="economic_features",
     )
 
+    if denue_services is not None:
+        modeling = _merge_one_to_one(
+            modeling,
+            denue_services,
+            on=[CELL_KEY],
+            source_name="denue_service_features",
+        )
+
     modeling = _merge_one_to_one(
         modeling,
         static,
@@ -342,9 +365,10 @@ def read_modeling_inputs(
     labels_path: Path,
     demographic_path: Path,
     economic_path: Path,
+    denue_service_path: Path | None = None,
 ) -> dict[str, pd.DataFrame]:
     """Read all modeling dataset inputs."""
-    return {
+    inputs = {
         "spatial_features": gpd.read_parquet(spatial_path),
         "road_features": pd.read_parquet(road_path),
         "land_cover_features": pd.read_parquet(land_cover_path),
@@ -352,3 +376,8 @@ def read_modeling_inputs(
         "demographic_features": pd.read_parquet(demographic_path),
         "economic_features": pd.read_parquet(economic_path),
     }
+
+    if denue_service_path is not None:
+        inputs["denue_service_features"] = pd.read_parquet(denue_service_path)
+
+    return inputs

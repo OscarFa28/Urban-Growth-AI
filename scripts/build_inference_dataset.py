@@ -68,6 +68,12 @@ def default_paths(
             / f"{grid_size}m"
             / f"{country}_economic_features_denue{denue_year}_{label}_{grid_size}m.parquet"
         ),
+        "denue_services": (
+            Path("data/features/services_denue")
+            / country
+            / f"{grid_size}m"
+            / f"{country}_service_features_denue{denue_year}_{label}_{grid_size}m.parquet"
+        ),
         "output": (
             Path("data/features/inference")
             / country
@@ -93,6 +99,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--land-cover-path", type=Path, default=None)
     parser.add_argument("--demographic-path", type=Path, default=None)
     parser.add_argument("--economic-path", type=Path, default=None)
+    parser.add_argument("--denue-service-path", type=Path, default=None)
     parser.add_argument("--output", type=Path, default=None)
 
     parser.add_argument(
@@ -121,6 +128,7 @@ def main() -> None:
     land_cover_path = args.land_cover_path or paths["land_cover"]
     demographic_path = args.demographic_path or paths["demographic"]
     economic_path = args.economic_path or paths["economic"]
+    denue_service_path = args.denue_service_path or paths["denue_services"]
     output_path = args.output or paths["output"]
 
     print(f"Reading spatial features: {spatial_path}")
@@ -128,6 +136,7 @@ def main() -> None:
     print(f"Reading land cover features: {land_cover_path}")
     print(f"Reading demographic temporal features: {demographic_path}")
     print(f"Reading economic features: {economic_path}")
+    print(f"Reading DENUE service features: {denue_service_path}")
 
     inputs = read_inference_inputs(
         spatial_path=spatial_path,
@@ -135,6 +144,7 @@ def main() -> None:
         land_cover_path=land_cover_path,
         demographic_path=demographic_path,
         economic_path=economic_path,
+        denue_service_path=denue_service_path,
     )
 
     inference = build_inference_dataset(

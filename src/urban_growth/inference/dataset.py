@@ -11,6 +11,7 @@ import pandas as pd
 from urban_growth.modeling.dataset import (
     _merge_one_to_one,
     _prepare_demographic_features,
+    _prepare_denue_service_features,
     _prepare_economic_features,
     _prepare_land_cover_features,
     _prepare_road_features,
@@ -64,6 +65,10 @@ INFERENCE_OUTPUT_COLUMNS = [
     "economic_business_density_per_km2",
     "economic_distance_to_nearest_business_m",
     "economic_distance_to_nearest_business_km",
+    "denue_service_total_count",
+    "denue_service_total_density_per_km2",
+    "denue_service_distance_to_nearest_any_m",
+    "denue_service_distance_to_nearest_any_km",
     "geometry",
 ]
 
@@ -74,6 +79,7 @@ def build_inference_dataset(
     land_cover_features: pd.DataFrame,
     demographic_features: pd.DataFrame,
     economic_features: pd.DataFrame,
+    denue_service_features: pd.DataFrame | None = None,
     inference_year: int = 2025,
     urban_threshold: float = 0.35,
 ) -> gpd.GeoDataFrame:
@@ -95,6 +101,10 @@ def build_inference_dataset(
     static = _prepare_static_features(spatial_features)
     roads = _prepare_road_features(road_features)
     economic = _prepare_economic_features(economic_features)
+    denue_services = None
+
+    if denue_service_features is not None:
+        denue_services = _prepare_denue_service_features(denue_service_features)
 
     inference = land_cover
 
@@ -116,6 +126,15 @@ def build_inference_dataset(
         on=[CELL_KEY],
         source_name="economic_features",
     )
+
+    if denue_services is not None:
+        inference = _merge_one_to_one(
+            inference,
+            denue_services,
+            on=[CELL_KEY],
+            source_name="denue_service_features",
+        )
+
     inference = _merge_one_to_one(
         inference,
         static,
@@ -153,15 +172,21 @@ def read_inference_inputs(
     land_cover_path: Path,
     demographic_path: Path,
     economic_path: Path,
+    denue_service_path: Path | None = None,
 ) -> dict[str, Any]:
     """Read all inference dataset inputs."""
-    return {
+    inputs = {
         "spatial_features": gpd.read_parquet(spatial_path),
         "road_features": pd.read_parquet(road_path),
         "land_cover_features": pd.read_parquet(land_cover_path),
         "demographic_features": pd.read_parquet(demographic_path),
         "economic_features": pd.read_parquet(economic_path),
     }
+
+    if denue_service_path is not None:
+        inputs["denue_service_features"] = pd.read_parquet(denue_service_path)
+
+    return inputs
 
 
 def select_inference_output_columns(frame: gpd.GeoDataFrame) -> gpd.GeoDataFrame:

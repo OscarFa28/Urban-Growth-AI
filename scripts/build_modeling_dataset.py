@@ -71,6 +71,12 @@ def default_paths(
             / f"{grid_size}m"
             / f"{country}_economic_features_denue{denue_year}_{label}_{grid_size}m.parquet"
         ),
+        "denue_services": (
+            Path("data/features/services_denue")
+            / country
+            / f"{grid_size}m"
+            / f"{country}_service_features_denue{denue_year}_{label}_{grid_size}m.parquet"
+        ),
         "output": (
             Path("data/features/modeling")
             / country
@@ -95,6 +101,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--labels-path", type=Path, default=None)
     parser.add_argument("--demographic-path", type=Path, default=None)
     parser.add_argument("--economic-path", type=Path, default=None)
+    parser.add_argument("--denue-service-path", type=Path, default=None)
     parser.add_argument("--output", type=Path, default=None)
 
     return parser.parse_args()
@@ -118,6 +125,7 @@ def main() -> None:
     labels_path = args.labels_path or paths["labels"]
     demographic_path = args.demographic_path or paths["demographic"]
     economic_path = args.economic_path or paths["economic"]
+    denue_service_path = args.denue_service_path or paths["denue_services"]
     output_path = args.output or paths["output"]
 
     print(f"Reading spatial features: {spatial_path}")
@@ -126,6 +134,7 @@ def main() -> None:
     print(f"Reading labels: {labels_path}")
     print(f"Reading demographic temporal features: {demographic_path}")
     print(f"Reading economic features: {economic_path}")
+    print(f"Reading DENUE service features: {denue_service_path}")
 
     inputs = read_modeling_inputs(
         spatial_path=spatial_path,
@@ -134,6 +143,7 @@ def main() -> None:
         labels_path=labels_path,
         demographic_path=demographic_path,
         economic_path=economic_path,
+        denue_service_path=denue_service_path,
     )
 
     modeling = build_modeling_dataset(
