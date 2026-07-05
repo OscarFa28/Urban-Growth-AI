@@ -53,6 +53,33 @@ def default_model_paths() -> dict[str, Path]:
     }
 
 
+def normalize_top_percentiles(values: list[float]) -> list[float]:
+    """Normalize user-facing top percentages to percentile thresholds.
+
+    Values greater than 1 are interpreted as top percentages:
+    1 -> 0.99, 5 -> 0.95, 10 -> 0.90.
+
+    Values between 0 and 1 are treated as already-normalized percentile thresholds:
+    0.99 -> 0.99, 0.95 -> 0.95, 0.90 -> 0.90.
+    """
+    thresholds = []
+
+    for value in values:
+        if value <= 0:
+            msg = "Top percentiles must be positive."
+            raise ValueError(msg)
+
+        if value >= 1:
+            if value >= 100:
+                msg = "Top percentiles must be less than 100 when using percentage values."
+                raise ValueError(msg)
+            thresholds.append(1 - (value / 100))
+        else:
+            thresholds.append(value)
+
+    return thresholds
+
+
 def parse_model_paths(values: list[str] | None) -> dict[str, Path]:
     if not values:
         return default_model_paths()
@@ -88,7 +115,12 @@ def parse_args() -> argparse.Namespace:
         "--top-percentiles",
         nargs="+",
         type=float,
-        default=[0.99, 0.95, 0.90],
+        default=[1, 5, 10],
+        help=(
+            "Top percentage buckets to evaluate, for example 1 5 10. "
+            "Values between 0 and 1 are also accepted as percentile thresholds, "
+            "for example 0.99 0.95 0.90."
+        ),
     )
     parser.add_argument(
         "--selection-bucket",
@@ -137,7 +169,7 @@ def main() -> None:
             summarize_top_percentiles(
                 scored,
                 model_name=model_name,
-                percentile_thresholds=args.top_percentiles,
+                percentile_thresholds=normalize_top_percentiles(args.top_percentiles),
             )
         )
         tier_rows.extend(summarize_tiers(scored, model_name=model_name))
