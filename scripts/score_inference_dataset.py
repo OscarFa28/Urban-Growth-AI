@@ -65,11 +65,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--priorities", nargs="+", type=int, default=[1, 2])
     parser.add_argument("--grid-size", type=int, default=500)
     parser.add_argument("--inference-year", type=int, default=2025)
-    parser.add_argument("--model-name", default="random_forest")
+    parser.add_argument("--model-name", default="hist_gradient_boosting")
     parser.add_argument(
         "--model-path",
         type=Path,
-        default=Path("models/advanced/random_forest.joblib"),
+        default=Path("models/advanced/hist_gradient_boosting.joblib"),
     )
     parser.add_argument("--input", type=Path, default=None)
     parser.add_argument("--output", type=Path, default=None)
