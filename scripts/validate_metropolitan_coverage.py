@@ -92,7 +92,18 @@ def _print_summary(summary: dict[str, Any]) -> None:
     print("Municipalities by metro_area_id:")
 
     for metro_area_id, municipality_count in summary["municipalities_by_metro_area"].items():
-        print(f"  - {metro_area_id}: {municipality_count}")
+        status = summary["coverage_statuses_by_metro_area"][metro_area_id]
+        print(f"  - {metro_area_id}: {municipality_count} ({status})")
+
+    manual_review_city_ids = summary["manual_review_required_city_ids"]
+    print("Cities requiring manual review:")
+
+    if manual_review_city_ids:
+        for city_id in manual_review_city_ids:
+            status = summary["coverage_statuses_by_city_id"][city_id]
+            print(f"  - {city_id}: {status}")
+    else:
+        print("  - none")
 
     if "cities_without_metropolitan_coverage" in summary:
         missing_city_ids = summary["cities_without_metropolitan_coverage"]

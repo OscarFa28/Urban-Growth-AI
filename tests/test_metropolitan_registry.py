@@ -2,6 +2,7 @@ import pandas as pd
 import pytest
 
 from urban_growth.data.metropolitan_registry import (
+    DEFAULT_METROPOLITAN_REGISTRY_PATH,
     get_city_metro_coverage,
     list_metro_areas,
     read_metropolitan_municipalities,
@@ -24,10 +25,9 @@ def build_example_frame() -> pd.DataFrame:
                 "state_name": "State A",
                 "state_code": "01",
                 "is_core_municipality": "true",
+                "coverage_status": "official_2020",
                 "source_name": "Test source",
                 "source_year": "2020",
-                "coverage_status": "complete",
-                "notes": "",
             },
             {
                 "country_code": "mx",
@@ -40,15 +40,14 @@ def build_example_frame() -> pd.DataFrame:
                 "state_name": "State A",
                 "state_code": "01",
                 "is_core_municipality": "false",
+                "coverage_status": "official_2020",
                 "source_name": "Test source",
                 "source_year": "2020",
-                "coverage_status": "complete",
-                "notes": "",
             },
             {
                 "country_code": "mx",
-                "metro_area_id": "mx_metro_beta",
-                "metro_area_name": "Metro Beta",
+                "metro_area_id": "mx_local_beta",
+                "metro_area_name": "Local Beta",
                 "city_id": "mx_beta",
                 "city_name": "Beta",
                 "municipality_cvegeo": "02001",
@@ -56,10 +55,9 @@ def build_example_frame() -> pd.DataFrame:
                 "state_name": "State B",
                 "state_code": "02",
                 "is_core_municipality": "true",
+                "coverage_status": "standalone_manual_review_required",
                 "source_name": "Test source",
                 "source_year": "2020",
-                "coverage_status": "partial_manual_review_required",
-                "notes": "",
             },
         ]
     )
@@ -83,10 +81,34 @@ def test_validate_metropolitan_municipalities_requires_columns() -> None:
         validate_metropolitan_municipalities(frame)
 
 
+def test_validate_metropolitan_municipalities_rejects_empty_required_values() -> None:
+    frame = build_example_frame()
+    frame.loc[0, "city_id"] = ""
+
+    with pytest.raises(ValueError, match="Column 'city_id' cannot be empty"):
+        validate_metropolitan_municipalities(frame)
+
+
 def test_validate_metropolitan_municipalities_rejects_duplicate_municipalities() -> None:
     frame = pd.concat([build_example_frame(), build_example_frame().iloc[[0]]])
 
     with pytest.raises(ValueError, match="Duplicate rows"):
+        validate_metropolitan_municipalities(frame)
+
+
+def test_validate_metropolitan_municipalities_rejects_invalid_cvegeo() -> None:
+    frame = build_example_frame()
+    frame.loc[0, "municipality_cvegeo"] = "1001"
+
+    with pytest.raises(ValueError, match="5-digit string"):
+        validate_metropolitan_municipalities(frame)
+
+
+def test_validate_metropolitan_municipalities_rejects_invalid_status() -> None:
+    frame = build_example_frame()
+    frame.loc[0, "coverage_status"] = "draft"
+
+    with pytest.raises(ValueError, match="Invalid coverage_status"):
         validate_metropolitan_municipalities(frame)
 
 
@@ -110,9 +132,10 @@ def test_summarize_metropolitan_coverage_returns_expected_counts() -> None:
     assert summary["city_count"] == 2
     assert summary["row_count"] == 3
     assert summary["municipalities_by_metro_area"] == {
+        "mx_local_beta": 1,
         "mx_metro_alpha": 2,
-        "mx_metro_beta": 1,
     }
+    assert summary["manual_review_required_city_ids"] == ["mx_beta"]
 
 
 def test_list_metro_areas_returns_compact_area_table() -> None:
@@ -120,5 +143,21 @@ def test_list_metro_areas_returns_compact_area_table() -> None:
 
     metro_areas = list_metro_areas(frame)
 
-    assert list(metro_areas["metro_area_id"]) == ["mx_metro_alpha", "mx_metro_beta"]
-    assert list(metro_areas["municipality_count"]) == [2, 1]
+    assert list(metro_areas["metro_area_id"]) == ["mx_local_beta", "mx_metro_alpha"]
+    assert list(metro_areas["municipality_count"]) == [1, 2]
+
+
+def test_default_registry_has_v027_coverage_counts() -> None:
+    frame = read_metropolitan_municipalities(DEFAULT_METROPOLITAN_REGISTRY_PATH)
+    summary = summarize_metropolitan_coverage(frame)
+
+    assert summary["municipality_count"] == 109
+    assert summary["metro_area_count"] == 12
+    assert summary["city_count"] == 12
+    assert summary["municipalities_by_metro_area"]["mx_zm_valle_de_mexico"] == 63
+    assert summary["municipalities_by_metro_area"]["mx_zm_monterrey"] == 16
+    assert summary["municipalities_by_metro_area"]["mx_zm_guadalajara"] == 7
+    assert summary["manual_review_required_city_ids"] == [
+        "mx_arandas",
+        "mx_san_juan_de_los_lagos",
+    ]

@@ -1,3 +1,4 @@
+import re
 from pathlib import Path
 from typing import Any
 
@@ -18,21 +19,21 @@ REQUIRED_COLUMNS: tuple[str, ...] = (
     "state_name",
     "state_code",
     "is_core_municipality",
+    "coverage_status",
     "source_name",
     "source_year",
 )
 
-OPTIONAL_COLUMNS: tuple[str, ...] = (
-    "coverage_status",
-    "notes",
+VALID_COVERAGE_STATUSES: frozenset[str] = frozenset(
+    {
+        "official_2020",
+        "manual_review_required",
+        "standalone_manual_review_required",
+    }
 )
 
-_NORMALIZED_COLUMNS = REQUIRED_COLUMNS + OPTIONAL_COLUMNS
-_NON_EMPTY_COLUMNS = (
-    "municipality_cvegeo",
-    "city_id",
-    "metro_area_id",
-)
+_BOOLEAN_VALUES = frozenset({"true", "false"})
+_CVEGEO_PATTERN = re.compile(r"^\d{5}$")
 
 
 def _normalize_string_column(series: pd.Series) -> pd.Series:
@@ -41,10 +42,10 @@ def _normalize_string_column(series: pd.Series) -> pd.Series:
 
 
 def normalize_metropolitan_municipalities(frame: pd.DataFrame) -> pd.DataFrame:
-    """Normalize metropolitan municipality registry values."""
+    """Normalize metropolitan municipality registry values without mutating input."""
     normalized = frame.copy()
 
-    for column in _NORMALIZED_COLUMNS:
+    for column in REQUIRED_COLUMNS:
         if column in normalized.columns:
             normalized[column] = _normalize_string_column(normalized[column])
 
@@ -53,6 +54,9 @@ def normalize_metropolitan_municipalities(frame: pd.DataFrame) -> pd.DataFrame:
 
     if "is_core_municipality" in normalized.columns:
         normalized["is_core_municipality"] = normalized["is_core_municipality"].str.lower()
+
+    if "coverage_status" in normalized.columns:
+        normalized["coverage_status"] = normalized["coverage_status"].str.lower()
 
     return normalized
 
@@ -77,18 +81,58 @@ def _ensure_required_columns(frame: pd.DataFrame) -> None:
         raise ValueError(f"Missing required metropolitan registry columns: {missing}")
 
 
+def _format_row_indexes(indexes: pd.Index) -> str:
+    return ", ".join(str(index) for index in indexes.tolist())
+
+
+def _validate_required_values(frame: pd.DataFrame) -> None:
+    for column in REQUIRED_COLUMNS:
+        empty_rows = frame[column].eq("")
+
+        if empty_rows.any():
+            rows = _format_row_indexes(frame.index[empty_rows])
+            raise ValueError(f"Column '{column}' cannot be empty. Empty rows: {rows}")
+
+
+def _validate_municipality_cvegeo(frame: pd.DataFrame) -> None:
+    invalid_rows = ~frame["municipality_cvegeo"].str.match(_CVEGEO_PATTERN)
+
+    if invalid_rows.any():
+        rows = _format_row_indexes(frame.index[invalid_rows])
+        raise ValueError(
+            f"Column 'municipality_cvegeo' must be a 5-digit string. Invalid rows: {rows}"
+        )
+
+
+def _validate_coverage_status(frame: pd.DataFrame) -> None:
+    invalid_rows = ~frame["coverage_status"].isin(VALID_COVERAGE_STATUSES)
+
+    if invalid_rows.any():
+        invalid_values = sorted(frame.loc[invalid_rows, "coverage_status"].unique())
+        values = ", ".join(str(value) for value in invalid_values)
+        allowed = ", ".join(sorted(VALID_COVERAGE_STATUSES))
+        raise ValueError(f"Invalid coverage_status values: {values}. Allowed values: {allowed}")
+
+
+def _validate_is_core_municipality(frame: pd.DataFrame) -> None:
+    invalid_rows = ~frame["is_core_municipality"].isin(_BOOLEAN_VALUES)
+
+    if invalid_rows.any():
+        rows = _format_row_indexes(frame.index[invalid_rows])
+        raise ValueError(
+            f"Column 'is_core_municipality' must be 'true' or 'false'. Invalid rows: {rows}"
+        )
+
+
 def validate_metropolitan_municipalities(frame: pd.DataFrame) -> None:
     """Validate the metropolitan municipality registry schema and keys."""
     _ensure_required_columns(frame)
     normalized = normalize_metropolitan_municipalities(frame)
 
-    for column in _NON_EMPTY_COLUMNS:
-        empty_rows = normalized[column].eq("")
-
-        if empty_rows.any():
-            row_numbers = [str(index) for index in normalized.index[empty_rows].tolist()]
-            rows = ", ".join(row_numbers)
-            raise ValueError(f"Column '{column}' cannot be empty. Empty rows: {rows}")
+    _validate_required_values(normalized)
+    _validate_municipality_cvegeo(normalized)
+    _validate_coverage_status(normalized)
+    _validate_is_core_municipality(normalized)
 
     duplicated = normalized.duplicated(
         subset=["metro_area_id", "municipality_cvegeo"],
@@ -102,13 +146,9 @@ def validate_metropolitan_municipalities(frame: pd.DataFrame) -> None:
             .to_dict(orient="records")
         )
         keys = ", ".join(
-            f"{row['metro_area_id']} + {row['municipality_cvegeo']}"
-            for row in duplicate_keys
+            f"{row['metro_area_id']} + {row['municipality_cvegeo']}" for row in duplicate_keys
         )
-        raise ValueError(
-            "Duplicate rows by metro_area_id + municipality_cvegeo: "
-            f"{keys}"
-        )
+        raise ValueError(f"Duplicate rows by metro_area_id + municipality_cvegeo: {keys}")
 
 
 def get_metro_municipalities(
@@ -147,23 +187,25 @@ def _join_unique_values(values: pd.Series) -> str:
     return "|".join(unique_values)
 
 
+def _manual_review_required(statuses: pd.Series) -> bool:
+    return statuses.str.contains("manual_review_required", regex=False).any()
+
+
 def list_metro_areas(frame: pd.DataFrame) -> pd.DataFrame:
     """List metropolitan areas and compact coverage counts."""
     validate_metropolitan_municipalities(frame)
     normalized = normalize_metropolitan_municipalities(frame)
 
     group_columns = ["country_code", "metro_area_id", "metro_area_name"]
-    aggregations: dict[str, tuple[str, Any]] = {
-        "municipality_count": ("municipality_cvegeo", "nunique"),
-        "city_count": ("city_id", "nunique"),
-    }
-
-    if "coverage_status" in normalized.columns:
-        aggregations["coverage_statuses"] = ("coverage_status", _join_unique_values)
 
     return (
         normalized.groupby(group_columns, as_index=False, sort=True)
-        .agg(**aggregations)
+        .agg(
+            municipality_count=("municipality_cvegeo", "nunique"),
+            city_count=("city_id", "nunique"),
+            coverage_statuses=("coverage_status", _join_unique_values),
+            requires_manual_review=("coverage_status", _manual_review_required),
+        )
         .sort_values("metro_area_id")
         .reset_index(drop=True)
     )
@@ -183,8 +225,30 @@ def summarize_metropolitan_coverage(frame: pd.DataFrame) -> dict[str, Any]:
         str(row["metro_area_id"]): int(row["city_count"])
         for row in metro_areas.to_dict(orient="records")
     }
+    coverage_statuses_by_metro_area = {
+        str(row["metro_area_id"]): str(row["coverage_statuses"])
+        for row in metro_areas.to_dict(orient="records")
+    }
+    coverage_statuses_by_city_id = (
+        normalized.groupby("city_id")["coverage_status"].agg(_join_unique_values).to_dict()
+    )
+    cities_by_coverage_status = {
+        str(status): sorted(group["city_id"].drop_duplicates().tolist())
+        for status, group in normalized.groupby("coverage_status")
+    }
 
-    summary: dict[str, Any] = {
+    manual_review_city_ids = sorted(
+        city_id
+        for city_id, statuses in coverage_statuses_by_city_id.items()
+        if "manual_review_required" in statuses
+    )
+    manual_review_metro_area_ids = sorted(
+        metro_area_id
+        for metro_area_id, statuses in coverage_statuses_by_metro_area.items()
+        if "manual_review_required" in statuses
+    )
+
+    return {
         "row_count": int(len(normalized)),
         "country_codes": sorted(normalized["country_code"].drop_duplicates().tolist()),
         "metro_area_count": int(normalized["metro_area_id"].nunique()),
@@ -192,14 +256,9 @@ def summarize_metropolitan_coverage(frame: pd.DataFrame) -> dict[str, Any]:
         "city_count": int(normalized["city_id"].nunique()),
         "municipalities_by_metro_area": municipalities_by_metro_area,
         "cities_by_metro_area": cities_by_metro_area,
+        "coverage_statuses_by_metro_area": coverage_statuses_by_metro_area,
+        "coverage_statuses_by_city_id": coverage_statuses_by_city_id,
+        "cities_by_coverage_status": cities_by_coverage_status,
+        "manual_review_required_city_ids": manual_review_city_ids,
+        "manual_review_required_metro_area_ids": manual_review_metro_area_ids,
     }
-
-    if "coverage_status" in normalized.columns:
-        coverage_statuses = (
-            normalized.groupby("metro_area_id")["coverage_status"]
-            .agg(_join_unique_values)
-            .to_dict()
-        )
-        summary["coverage_statuses_by_metro_area"] = coverage_statuses
-
-    return summary
